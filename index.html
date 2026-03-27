@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Звуковое приложение</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none; /* Чтобы текст на кнопках не выделялся */
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e1e2f 0%, #2a2a3b 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        button {
+            padding: 24px 20px;
+            font-size: 28px;
+            font-weight: bold;
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: transform 0.1s ease, opacity 0.2s;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        button:active {
+            transform: scale(0.96);
+        }
+
+        .fart-btn {
+            background: linear-gradient(145deg, #7b2c2c, #5a1e1e);
+            border-bottom: 4px solid #ff8c8c;
+        }
+
+        .burp-btn {
+            background: linear-gradient(145deg, #2c5e2c, #1e401e);
+            border-bottom: 4px solid #a5ffa5;
+        }
+
+        /* Адаптация под темную тему Telegram (опционально) */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #0f0f12;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="fart-btn" id="fartButton">💨 ГРОМКИЙ ПУК #1</button>
+        <button class="burp-btn" id="burpButton">🤢 ГРОМКАЯ ПУК #2</button>
+    </div>
+
+    <script>
+        // Ждем полной загрузки DOM
+        document.addEventListener('DOMContentLoaded', () => {
+            // Создаем аудио объекты
+            // Важно: пути должны указывать на файлы, которые будут лежать рядом с index.html
+            const fartSound = new Audio('fart_1.ogg');
+            const burpSound = new Audio('fart_2.ogg');
+
+            // Функция для воспроизведения с "сбросом", чтобы звук можно было быстро нажимать
+            function playSound(audioElement) {
+                // Останавливаем, если звук уже играет, и перематываем на начало
+                audioElement.pause();
+                audioElement.currentTime = 0;
+                // Запускаем воспроизведение
+                audioElement.play().catch(e => {
+                    // Ловим ошибки автоплея (в Telegram WebView обычно автоплей разрешен по действию пользователя)
+                    console.log('Ошибка воспроизведения:', e);
+                    // На случай, если браузер блокирует — можно показать alert, но лучше просто логировать
+                });
+            }
+
+            // Назначаем обработчики на кнопки
+            const fartBtn = document.getElementById('fartButton');
+            const burpBtn = document.getElementById('burpButton');
+
+            fartBtn.addEventListener('click', () => {
+                playSound(fartSound);
+            });
+
+            burpBtn.addEventListener('click', () => {
+                playSound(burpSound);
+            });
+
+            // Маленькая хитрость: "разбудить" аудиоконтекст на первом касании экрана
+            // В некоторых браузерах на iOS Audio работает только после первого взаимодействия с сайтом.
+            // Так как кнопки уже есть — проблем не будет, но добавим инициализацию на tap любой кнопки
+            // Это необязательно, но повышает совместимость.
+        });
+    </script>
+</body>
+</html>
