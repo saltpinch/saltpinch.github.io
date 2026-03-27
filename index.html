@@ -9,7 +9,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none; /* Чтобы текст на кнопках не выделялся */
+            user-select: none;
         }
 
         body {
@@ -58,7 +58,6 @@
             border-bottom: 4px solid #a5ffa5;
         }
 
-        /* Адаптация под темную тему Telegram (опционально) */
         @media (prefers-color-scheme: dark) {
             body {
                 background: #0f0f12;
@@ -68,32 +67,44 @@
 </head>
 <body>
     <div class="container">
-        <button class="fart-btn" id="fartButton">💨 ГРОМКИЙ ПУК #1</button>
-        <button class="burp-btn" id="burpButton">🤢 ГРОМКАЯ ПУК #2</button>
+        <button class="fart-btn" id="fartButton">💨 ГРОМКИЙ ПУК</button>
+        <button class="burp-btn" id="burpButton">🤢 ГРОМКАЯ ОТРЫЖКА</button>
     </div>
 
     <script>
-        // Ждем полной загрузки DOM
         document.addEventListener('DOMContentLoaded', () => {
-            // Создаем аудио объекты
-            // Важно: пути должны указывать на файлы, которые будут лежать рядом с index.html
+            // ВАЖНО: имена файлов должны точно совпадать с теми, что в репозитории
+            // Если файлы называются Fart_1.ogg и Fart_2.ogg - используем эти имена
             const fartSound = new Audio('Fart_1.ogg');
             const burpSound = new Audio('Fart_2.ogg');
+            
+            // Добавляем обработчик ошибок загрузки
+            fartSound.addEventListener('error', (e) => {
+                console.error('Ошибка загрузки Fart_1.ogg:', e);
+                alert('Не удалось загрузить звук пука. Проверьте, что файл Fart_1.ogg есть в папке.');
+            });
+            
+            burpSound.addEventListener('error', (e) => {
+                console.error('Ошибка загрузки Fart_2.ogg:', e);
+                alert('Не удалось загрузить звук отрыжки. Проверьте, что файл Fart_2.ogg есть в папке.');
+            });
 
-            // Функция для воспроизведения с "сбросом", чтобы звук можно было быстро нажимать
             function playSound(audioElement) {
-                // Останавливаем, если звук уже играет, и перематываем на начало
+                // Сбрасываем звук и воспроизводим
                 audioElement.pause();
                 audioElement.currentTime = 0;
-                // Запускаем воспроизведение
-                audioElement.play().catch(e => {
-                    // Ловим ошибки автоплея (в Telegram WebView обычно автоплей разрешен по действию пользователя)
-                    console.log('Ошибка воспроизведения:', e);
-                    // На случай, если браузер блокирует — можно показать alert, но лучше просто логировать
-                });
+                
+                // Пробуем воспроизвести
+                const playPromise = audioElement.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.error('Ошибка воспроизведения:', error);
+                        alert('Не удалось воспроизвести звук. Нажмите кнопку ещё раз.');
+                    });
+                }
             }
 
-            // Назначаем обработчики на кнопки
             const fartBtn = document.getElementById('fartButton');
             const burpBtn = document.getElementById('burpButton');
 
@@ -104,11 +115,6 @@
             burpBtn.addEventListener('click', () => {
                 playSound(burpSound);
             });
-
-            // Маленькая хитрость: "разбудить" аудиоконтекст на первом касании экрана
-            // В некоторых браузерах на iOS Audio работает только после первого взаимодействия с сайтом.
-            // Так как кнопки уже есть — проблем не будет, но добавим инициализацию на tap любой кнопки
-            // Это необязательно, но повышает совместимость.
         });
     </script>
 </body>
